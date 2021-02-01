@@ -11,9 +11,9 @@ mongoose
     console.log("connected");
     app.listen(3000);
   })
-  .catch((err) => {
-    console.log(err);
-  });
+  .catch((err) => console.log(err));
+
+app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   res.redirect("/get-items");
@@ -26,9 +26,32 @@ app.get("/get-items", (req, res) => {
     })
     .catch((err) => console.log(err));
 });
-
 app.get("/add-item", (req, res) => {
   res.render("add-item");
+});
+
+app.post("/items", (req, res) => {
+  console.log(req.body);
+  const item = Item(req.body);
+  item
+    .save()
+    .then(() => {
+      res.redirect("/get-items");
+    })
+    .catch((err) => console.log(err));
+});
+app.get("/items/:id", (req, res) => {
+  const id = req.params.id;
+  Item.findById(id).then((result) => {
+    console.log("result", result);
+    res.render("item-detail", { item: result });
+  });
+});
+app.delete("/items/:id", (req, res) => {
+  const id = req.params.id;
+  Item.findByIdAndDelete(id).then((result) => {
+    res.json({ redirect: "/get-items" });
+  });
 });
 
 app.use((req, res) => {
